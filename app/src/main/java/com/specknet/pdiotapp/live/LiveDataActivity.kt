@@ -10,6 +10,7 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
 import android.util.Log
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
@@ -48,6 +49,9 @@ class LiveDataActivity : AppCompatActivity() {
     private val stepSize = 10
     private val respeckBuffer = SlidingWindowBuffer<Triple<Float, Float, Float>>(windowSize, stepSize)
     // Sliding window buffer END
+
+    // TextView for classification result
+    private lateinit var classificationResultTextView: TextView
 
     // global broadcast receiver so we can unregister it
     lateinit var respeckLiveUpdateReceiver: BroadcastReceiver
@@ -147,6 +151,15 @@ class LiveDataActivity : AppCompatActivity() {
         // For example:
         // val result = myMLModel.predict(data)
         // Log.d("Classification", "Result: $result")
+        val result = "Walking" // Replace with actual classification result
+        displayClassificationResult(result)
+    }
+
+    // Function to display classification result on the UI
+    private fun displayClassificationResult(activityLabel: String) {
+        runOnUiThread {
+            classificationResultTextView.text = "Activity: $activityLabel"
+        }
     }
 
 //    NEW FUN END
