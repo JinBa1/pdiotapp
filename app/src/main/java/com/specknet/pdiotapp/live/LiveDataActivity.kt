@@ -20,6 +20,7 @@ import com.specknet.pdiotapp.R
 import com.specknet.pdiotapp.utils.Constants
 import com.specknet.pdiotapp.utils.RESpeckLiveData
 import com.specknet.pdiotapp.utils.ThingyLiveData
+import com.specknet.pdiotapp.utils.SlidingWindowBuffer
 import kotlin.collections.ArrayList
 
 
@@ -41,6 +42,12 @@ class LiveDataActivity : AppCompatActivity() {
 
     lateinit var respeckChart: LineChart
     lateinit var thingyChart: LineChart
+
+    // Sliding window buffer START
+    private val windowSize = 50
+    private val stepSize = 10
+    private val respeckBuffer = SlidingWindowBuffer<Triple<Float, Float, Float>>(windowSize, stepSize)
+    // Sliding window buffer END
 
     // global broadcast receiver so we can unregister it
     lateinit var respeckLiveUpdateReceiver: BroadcastReceiver
@@ -78,7 +85,8 @@ class LiveDataActivity : AppCompatActivity() {
 
                     time += 1
                     updateGraph("respeck", x, y, z)
-
+                    // CALL NEW FUN
+                    updateBufferAndClassify(x, y, z)
                 }
             }
         }
@@ -124,6 +132,24 @@ class LiveDataActivity : AppCompatActivity() {
         this.registerReceiver(thingyLiveUpdateReceiver, filterTestThingy, null, handlerThingy)
 
     }
+
+//    NEW FUN START
+    fun updateBufferAndClassify(x: Float, y: Float, z: Float) {
+        respeckBuffer.addData(Triple(x, y, z))
+        if (respeckBuffer.isReady()) {
+            val dataList = respeckBuffer.getData()
+            classifyData(dataList)
+        }
+    }
+
+    fun classifyData(data: List<Triple<Float, Float, Float>>) {
+        // Implement your ML model classification here
+        // For example:
+        // val result = myMLModel.predict(data)
+        // Log.d("Classification", "Result: $result")
+    }
+
+//    NEW FUN END
 
 
     fun setupCharts() {
