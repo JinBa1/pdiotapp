@@ -25,6 +25,9 @@ class RESpeckPacketHandler(val speckService: BluetoothSpeckService) {
 //            }
         }
 
+    // NEWLY ADDED
+    private val slidingWindowBuffer = SlidingWindowBuffer<AccelerationData>(windowSize = 32, stepSize = 16) //TODO derive sizes not hardcode
+
     fun processRESpeckLivePacket(values: ByteArray) {
         val fwVersionStr: String = speckService.reSpeckFwVersion
         Log.i("RAT", "Processing packet from RESpeck v: $fwVersionStr")
@@ -203,6 +206,19 @@ class RESpeckPacketHandler(val speckService: BluetoothSpeckService) {
                 highFrequency = highFrequency
             )
             Log.i("Freq", "newRespeckLiveData = $newRESpeckLiveData")
+
+            val newDataToBuffer = AccelerationData(x, y, z)
+
+            // Add the new data to the sliding window buffer
+            slidingWindowBuffer.addData(newDataToBuffer)
+            // Check if the buffer is ready and broadcast the data if it is
+            if (slidingWindowBuffer.isReady()) {
+                val bufferedData = slidingWindowBuffer.getData()
+                // Broadcast the buffered data
+                val liveDataIntent = Intent(Constants.ACTION_RESPECK_LIVE_BROADCAST)
+                liveDataIntent.putParcelableArrayListExtra(Constants.RESPECK_LIVE_DATA, ArrayList(bufferedData))
+                speckService.sendBroadcast(liveDataIntent)
+            }
 
             // Store the important data in the external storage if set in config
             if (mIsStoreDataLocally) {

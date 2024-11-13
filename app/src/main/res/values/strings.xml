@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PDIoT App</string>
+    <string name="app_name">CW3 W1 APP</string>
     <string name="ble_name">Name: %1$s</string>
     <string name="ble_mac">MAC: %1$s</string>
     <string name="ble_signal">Signal: %1$d</string>
